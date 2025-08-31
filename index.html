@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>LinkNest - Portfolio Interactif de Badley08 | Développeur Web</title>
+    <meta name="description" content="Découvrez LinkNest, le portfolio 3D interactif de Badley08. Explorez mes projets web innovants : Portfolio Karlito, LoreVault, X-Stack, SecretVault, ConvertPro, DailyDo et plus encore.">
+    <meta name="keywords" content="portfolio, développeur web, JavaScript, HTML, CSS, projets web, animations 3D, Badley08, LinkNest">
+    <meta name="author" content="Badley08">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="LinkNest - Portfolio 3D de Badley08">
+    <meta property="og:description" content="Portfolio interactif avec animations 3D spectaculaires - Découvrez mes créations web">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://badley08.github.io/LinkNest">
+    <meta property="og:image" content="https://badley08.github.io/LinkNest/og-image.jpg">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="LinkNest - Portfolio 3D de Badley08">
+    <meta name="twitter:description" content="Portfolio interactif avec animations 3D spectaculaires">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%234ecdc4'/><text x='50' y='60' text-anchor='middle' fill='white' font-size='40' font-weight='bold'>LN</text></svg>">
+    
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- CSS Styles -->
+    <style>
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ===== ANIMATIONS KEYFRAMES ===== */
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) rotateX(10deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes logoSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        /* ===== LAYOUT COMPONENTS ===== */
+        .container {
+            position: relative;
+            z-index: 10;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .logo:hover {
+            animation: logoSpin 1s ease-in-out;
+            box-shadow: 0 15px 40px rgba(78, 205, 196, 0.5);
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #a0a0a0;
+            font-weight: 300;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+        }
+
+        /* ===== PROJECTS GRID ===== */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transform-style: preserve-3d;
+            opacity: 0;
+            animation: slideInUp 0.8s ease-out forwards;
+        }
+
+        .project-card:nth-child(1) { animation-delay: 0.2s; }
+        .project-card:nth-child(2) { animation-delay: 0.4s; }
+        .project-card:nth-child(3) { animation-delay: 0.6s; }
+        .project-card:nth-child(4) { animation-delay: 0.8s; }
+        .project-card:nth-child(5) { animation-delay: 1.0s; }
+        .project-card:nth-child(6) { animation-delay: 1.2s; }
+        .project-card:nth-child(7) { animation-delay: 1.4s; }
+        .project-card:nth-child(8) { animation-delay: 1.6s; }
+        .project-card:nth-child(9) { animation-delay: 1.8s; }
+        .project-card:nth-child(10) { animation-delay: 2.0s; }
+
+        .project-card:hover {
+            transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 50px rgba(78, 205, 196, 0.2);
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                rgba(255, 107, 107, 0.1), 
+                rgba(78, 205, 196, 0.1), 
+                rgba(69, 183, 209, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 20px;
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        /* ===== PROJECT CARD ELEMENTS ===== */
+        .project-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover .project-icon {
+            transform: scale(1.1) rotateY(180deg);
+        }
+
+        .portfolio { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .conexion { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+        .troll-quizzy { background: linear-gradient(135deg, #45b7d1, #96c93d); }
+        .favorite { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .lorevault { background: linear-gradient(135deg, #ffecd2, #fcb69f); }
+        .x-stack { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+        .secretvault { background: linear-gradient(135deg, #13547a, #80d0c7); }
+        .convertpro { background: linear-gradient(135deg, #667db6, #0082c8); }
+        .dailydo { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .crushname { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+        .project-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .project-description {
+            color: #b0b0b0;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tech-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tech-tag:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .project-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ===== FLOATING ELEMENTS ===== */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(78, 205, 196, 0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* ===== NAVIGATION ELEMENTS ===== */
+        .github-link {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 50%;
+            text-decoration: none;
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .github-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        /* ===== THREE.JS CANVAS ===== */
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            .project-card {
+                padding: 1.5rem;
+            }
+            .container {
+                padding: 1rem;
+            }
+            .github-link {
+                top: 1rem;
+                right: 1rem;
+                padding: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2rem;
+            }
+            .logo {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Canvas Three.js pour les animations 3D -->
+    <canvas id="three-canvas"></canvas>
+    
+    <!-- Éléments flottants décoratifs -->
+    <div class="floating-elements"></div>
+    
+    <!-- Lien GitHub fixe -->
+    <a href="https://github.com/Badley08/" class="github-link" target="_blank" aria-label="Profil GitHub de Badley08">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+    </a>
+
+    <div class="container">
+        <header class="header">
+            <!-- Logo LinkNest -->
+            <div class="logo" id="logo">
+                <span>LN</span>
+            </div>
+            <h1 class="title">LinkNest</h1>
+            <p class="subtitle">Portfolio interactif de Badley08 - Explorez mes créations</p>
+        </header>
+
+        <main class="projects-grid">
+            <!-- Portfolio Principal -->
+            <article class="project-card pulse" onclick="openProject('https://badley08.github.io/Karlito')">
+                <div class="project-icon portfolio">👨‍💻</div>
+                <h3 class="project-title">Portfolio Karlito</h3>
+                <p class="project-description">
+                    Mon portfolio personnel principal avec présentation complète de mes compétences, projets et expériences en développement web.
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-tag">Portfolio</span>
+                    <span class="tech-tag">Responsive</span>
+                    <span class="tech-tag">Modern UI</span>
+                </div>
+                <a href="https://badley08.github.io/Karlito" class="project-link" onclick="event.stopPropagation()">
+                    <span>Visiter</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                </a>
+            </article>
+
+            <!-- LoreVault -->
+            <article class="project-card" onclick="openProject('https://badley08.github.io/LoreVault')">
+                <div class="project-icon lorevault">📚</div>
+                <h3 class="project-title">LoreVault</h3>
+                <p class="project-description">
+                    Bibliothèque numérique interactive pour stocker et organiser vos connaissances. Interface élégante pour la gestion de contenu.
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-tag">Library</span>
+                    <span class="tech-tag">Knowledge</span>
+                    <span class="tech-tag">Interactive</span>
+                </div>
+                <a href="https://badley08.github.io/LoreVault" class="project-link" onclick="event.stopPropagation()">
+                    <span>Explorer</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                </a>
+            </article>
+
+            <!-- X-Stack -->
+            <article class="project-card" onclick="openProject('https://badley08.github.io/x-stack')">
+                <div class="project-icon x-stack">⚡</div>
+                <h3 class="project-title">X-Stack</h3>
+                <p class="project-description">
+                    Stack technologique moderne et performant. Démonstration de technologies web avancées avec architecture optimisée.
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-tag">Modern Stack</span>
+                    <span class="tech-tag">Performance</span>
+                    <span class="tech-tag">Architecture</span>
+                </div>
+                <a href="https://badley08.github.io/x-stack" class="project-link" onclick="event.stopPropagation()">
+                    <span>Découvrir</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                </a>
+            </article>
+
+            <!-- SecretVault -->
+            <article class="project-card" onclick="openProject('https://badley08.github.io/SecretVault')">
+                <div class="project-icon secretvault">🔒</div>
+                <h3 class="project-title">SecretVault</h3>
+                <p class="project-description">
+                    Application sécurisée de gestion de données sensibles. Interface cryptée avec système de protection avancé.
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-tag">Security</span>
+                    <span class="tech-tag">Encryption</span>
+                    <span class="tech-tag">Privacy</span>
+                </div>
+                <a href="https://badley08.github.io/SecretVault" class="project-link" onclick="event.stopPropagation()">
+                    <span>Accéder</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                </a>
+            </article>
+
+            <!-- ConvertPro -->
+            <article class="project-card" onclick="openProject('https://badley08.github.io/ConvertPro')">
+                <div class="project-icon convertpro">🔄</div>
+                <h3 class="project-title">ConvertPro</h3>
+                <p class="project-description">
+                    Outil de conversion professionnel multi-format. Interface intuitive pour convertir fichiers, unités et formats divers.
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-tag">Converter</span>
+                    <span class="tech-tag">Multi-format</span>
+                    <span class="tech-tag">Professional</span>
+                </div>
+                <a href="https://badley08.github.io/ConvertPro" class="project-link" onclick="event.stopPropagation()">
+                    <span>Utiliser</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                </a>
+            </article>
+
+            <!-- DailyDo -->
+            <article class="project-card" onclick="openProject('https://badley08.github.io/DailyDo')">
+                <div class="project-icon dailydo">✅</div>
+                <h3 class="project-title">DailyDo</h3>
+                <p class="project-description">
+                    Gestionnaire de tâches quotidiennes moderne. Organisez votre productivité avec style et efficacité maximale.
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-tag">Productivity</span>
+                    <span class="tech-tag">Task Manager</span>
+                    <span class="tech-tag">Daily</span>
+                </div>
+                <a href="https://badley08.github.io/DailyDo" class="project-link" onclick="event.stopPropagation()">
+                    <span>Organiser</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                </a>
+            </article>
+
+            <!-- CrushName -->
+            <article class="project-card" onclick="openProject('https://badley08.github.io/CrushName')">
+                <div class="project-icon crushname">💝</div>
+                <h3 class="project-title">CrushName</h3>
+                <p class="project-description">
+                    Application amusante et interactive pour générer des noms créatifs. Interface ludique avec animations charmantes.
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-tag">Fun</span>
+                    <span class="tech-tag">Generator</span>
+                    <span class="tech-tag">Creative</span>
+                </div>
+                <a href="https://badley08.github.io/CrushName" class="project-link" onclick="event.stopPropagation()">
+                    <span>Jouer</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                </a>
+            </article>
+
+            <!-- Conexion -->
+            <article class="project-card" onclick="openProject('https://github.com/Badley08/conexion')">
+                <div class="project-icon conexion">🔐</div>
+                <h3 class="project-title">Conexion</h3>
+                <p class="project-description">
+                    Site de connexion élégant avec système Login/Signup. Interface utilisateur moderne avec authentification sécurisée.
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-tag">HTML</span>
+                    <span class="tech-tag">CSS</span>
+                    <span class="tech-tag">Auth</span>
+                </div>
+                <a href="https://github.com/Badley08/conexion" class="project-link" onclick="event.stopPropagation()">
+                    <span>Code Source</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                </a>
+            </article>
+
+            <!-- Troll Quizzy -->
+            <article class="project-card" onclick="openProject('https://badley08.github.io/troll-quizzy')">
+                <div class="project-icon troll-quizzy">🎮</div>
+                <h3 class="project-title">Troll Quizzy</h3>
+                <p class="project-description">
+                    Quiz interactif amusant avec des questions surprenantes. Interface colorée et animations engageantes pour une expérience ludique.
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-tag">CSS</span>
+                    <span class="tech-tag">Animation</span>
+                    <span class="tech-tag">Interactive</span>
+                </div>
+                <a href="https://badley08.github.io/troll-quizzy" class="project-link" onclick="event.stopPropagation()">
+                    <span>Jouer</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                </a>
+            </article>
+
+            <!-- Favorite -->
+            <article class="project-card" onclick="openProject('https://badley08.github.io/favorite')">
+                <div class="project-icon favorite">⭐</div>
+                <h3 class="project-title">Favorite</h3>
+                <p class="project-description">
+                    Application de gestion de favoris avec interface intuitive. Organisez et accédez rapidement à vos contenus préférés.
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-tag">JavaScript</span>
+                    <span class="tech-tag">DOM</span>
+                    <span class="tech-tag">Storage</span>
+                </div>
+                <a href="https://badley08.github.io/favorite" class="project-link" onclick="event.stopPropagation()">
+                    <span>Utiliser</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                </a>
+            </article>
+        </main>
+    </div>
+
+    <!-- JavaScript pour les interactions et animations 3D -->
+    <script>
+        // ===== VARIABLES GLOBALES =====
+        let scene, camera, renderer, geometry, material, mesh;
+        let particles = [];
+        let mouseX = 0, mouseY = 0;
+
+        // ===== INITIALISATION THREE.JS =====
+        function initThreeJS() {
+            // Configuration de base
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: document.getElementById('three-canvas'),
+                alpha: true,
+                antialias: true
+            });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+
+            // Création de particules flottantes 3D
+            createParticles();
+            
+            // Création de formes géométriques centrales
+            createCentralGeometry();
+
+            camera.position.z = 8;
+            animate();
+        }
+
+        function createParticles() {
+            const particleGeometry = new THREE.SphereGeometry(0.02, 8, 8);
+            
+            for (let i = 0; i < 200; i++) {
+                const hue = Math.random() * 0.3 + 0.4; // Bleu-cyan-vert
+                const particleMaterial = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color().setHSL(hue, 0.7, 0.6),
+                    transparent: true,
+                    opacity: Math.random() * 0.8 + 0.2
+                });
+                
+                const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+                particle.position.set(
+                    (Math.random() - 0.5) * 25,
+                    (Math.random() - 0.5) * 25,
+                    (Math.random() - 0.5) * 25
+                );
+                particle.velocity = {
+                    x: (Math.random() - 0.5) * 0.02,
+                    y: (Math.random() - 0.5) * 0.02,
+                    z: (Math.random() - 0.5) * 0.02
+                };
+                particle.rotationSpeed = {
+                    x: Math.random() * 0.02,
+                    y: Math.random() * 0.02,
+                    z: Math.random() * 0.02
+                };
+                particles.push(particle);
+                scene.add(particle);
+            }
+        }
+
+        function createCentralGeometry() {
+            // Torus principal
+            const torusGeometry = new THREE.TorusGeometry(2, 0.5, 16, 100);
+            const torusMaterial = new THREE.MeshBasicMaterial({
+                color: 0x4ecdc4,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.3
+            });
+            mesh = new THREE.Mesh(torusGeometry, torusMaterial);
+            scene.add(mesh);
+
+            // Anneaux orbitaux
+            for (let i = 0; i < 3; i++) {
+                const ringGeometry = new THREE.RingGeometry(3 + i, 3.2 + i, 32);
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color().setHSL(0.5 + i * 0.1, 0.7, 0.5),
+                    transparent: true,
+                    opacity: 0.2,
+                    side: THREE.DoubleSide
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.rotation.x = Math.PI / 2;
+                ring.rotation.z = i * Math.PI / 3;
+                scene.add(ring);
+            }
+        }
+
+        // ===== BOUCLE D'ANIMATION =====
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Animation du torus central
+            if (mesh) {
+                mesh.rotation.x += 0.005;
+                mesh.rotation.y += 0.01;
+                mesh.rotation.z += 0.003;
+            }
+
+            // Animation des particules
+            particles.forEach((particle, index) => {
+                // Mouvement orbital
+                const time = Date.now() * 0.001;
+                const radius = 5 + Math.sin(time + index) * 2;
+                particle.position.x = Math.cos(time * 0.5 + index) * radius + particle.velocity.x * time;
+                particle.position.y = Math.sin(time * 0.3 + index) * radius + particle.velocity.y * time;
+                particle.position.z = Math.sin(time * 0.7 + index) * radius + particle.velocity.z * time;
+
+                // Rotation continue
+                particle.rotation.x += particle.rotationSpeed.x;
+                particle.rotation.y += particle.rotationSpeed.y;
+                particle.rotation.z += particle.rotationSpeed.z;
+
+                // Effet de pulsation
+                const scale = 1 + Math.sin(time * 2 + index) * 0.3;
+                particle.scale.setScalar(scale);
+            });
+
+            // Interaction avec la souris
+            camera.position.x += (mouseX * 0.1 - camera.position.x) * 0.02;
+            camera.position.y += (-mouseY * 0.1 - camera.position.y) * 0.02;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        // ===== GESTION DES INTERACTIONS =====
+        function openProject(url) {
+            // Animation de clic global
+            const cards = document.querySelectorAll('.project-card');
+            cards.forEach(card => {
+                card.style.transform = 'scale(0.95)';
+                card.style.opacity = '0.7';
+                card.style.filter = 'blur(2px)';
+            });
+
+            // Effet sonore visuel
+            createClickEffect();
+
+            setTimeout(() => {
+                window.open(url, '_blank');
+                cards.forEach(card => {
+                    card.style.transform = '';
+                    card.style.opacity = '';
+                    card.style.filter = '';
+                });
+            }, 300);
+        }
+
+        function createClickEffect() {
+            const effect = document.createElement('div');
+            effect.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                width: 100px;
+                height: 100px;
+                background: radial-gradient(circle, rgba(78, 205, 196, 0.8) 0%, transparent 70%);
+                border-radius: 50%;
+                transform: translate(-50%, -50%) scale(0);
+                animation: clickExplosion 0.6s ease-out;
+                z-index: 1000;
+                pointer-events: none;
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes clickExplosion {
+                    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+                    100% { transform: translate(-50%, -50%) scale(10); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(effect);
+
+            setTimeout(() => {
+                document.body.removeChild(effect);
+                document.head.removeChild(style);
+            }, 600);
+        }
+
+        // ===== ÉLÉMENTS FLOTTANTS DÉCORATIFS =====
+        function createFloatingElements() {
+            const container = document.querySelector('.floating-elements');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffa726'];
+            
+            for (let i = 0; i < 30; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.top = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 6 + 's';
+                element.style.animationDuration = (Math.random() * 4 + 3) + 's';
+                element.style.background = colors[Math.floor(Math.random() * colors.length)];
+                element.style.width = (Math.random() * 6 + 2) + 'px';
+                element.style.height = element.style.width;
+                container.appendChild(element);
+            }
+        }
+
+        // ===== EFFETS DE SOURIS AVANCÉS =====
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            const cards = document.querySelectorAll('.project-card');
+            const mouseXPercent = e.clientX / window.innerWidth;
+            const mouseYPercent = e.clientY / window.innerHeight;
+
+            cards.forEach((card, index) => {
+                const rect = card.getBoundingClientRect();
+                const cardX = rect.left + rect.width / 2;
+                const cardY = rect.top + rect.height / 2;
+
+                const deltaX = (e.clientX - cardX) / 30;
+                const deltaY = (e.clientY - cardY) / 30;
+
+                if (Math.abs(deltaX) < 15 && Math.abs(deltaY) < 15) {
+                    card.style.transform = `
+                        perspective(1000px) 
+                        rotateY(${deltaX}deg) 
+                        rotateX(${-deltaY}deg) 
+                        translateZ(10px)
+                        scale(1.02)
+                    `;
+                } else {
+                    card.style.transform = '';
+                }
+            });
+
+            // Effet parallaxe sur le logo
+            const logo = document.getElementById('logo');
+            if (logo) {
+                const moveX = (mouseXPercent - 0.5) * 20;
+                const moveY = (mouseYPercent - 0.5) * 20;
+                logo.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            }
+        });
+
+        // ===== GESTION DU REDIMENSIONNEMENT =====
+        window.addEventListener('resize', () => {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
+
+        // ===== EFFETS DE CLIC SUR LES CARTES =====
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.project-card');
+            
+            cards.forEach((card, index) => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = `
+                        0 25px 50px rgba(0, 0, 0, 0.4),
+                        0 0 60px rgba(78, 205, 196, 0.3),
+                        inset 0 0 20px rgba(255, 255, 255, 0.1)
+                    `;
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = '';
+                    this.style.transform = '';
+                });
+
+                card.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.98) rotateX(2deg)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+        });
+
+        // ===== EFFET DE PARALLAXE AU SCROLL =====
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxCanvas = document.querySelector('#three-canvas');
+            const logo = document.getElementById('logo');
+            
+            if (parallaxCanvas) {
+                parallaxCanvas.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+            
+            if (logo) {
+                logo.style.transform += ` translateY(${scrolled * 0.1}px)`;
+            }
+        });
+
+        // ===== EFFET DE TYPING POUR LE TITRE =====
+        function typeWriter() {
+            const titleElement = document.querySelector('.title');
+            const originalText = 'LinkNest';
+            let i = 0;
+            titleElement.textContent = '';
+            
+            function type() {
+                if (i < originalText.length) {
+                    titleElement.textContent += originalText.charAt(i);
+                    i++;
+                    setTimeout(type, 150);
+                }
+            }
+            
+            setTimeout(type, 1000);
+        }
+
+        // ===== INTERACTION CLAVIER =====
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const cards = document.querySelectorAll('.project-card');
+                cards.forEach(card => {
+                    card.style.animation = 'pulse 0.6s ease-in-out';
+                });
+                
+                setTimeout(() => {
+                    cards.forEach(card => {
+                        card.style.animation = '';
+                    });
+                }, 600);
+            }
+        });
+
+        // ===== INITIALISATION COMPLÈTE =====
+        window.addEventListener('load', () => {
+            // Démarrage Three.js
+            initThreeJS();
+            
+            // Création des éléments flottants
+            createFloatingElements();
+            
+            // Effet de typing sur le titre
+            typeWriter();
+            
+            // Animation d'entrée séquentielle des cartes
+            const cards = document.querySelectorAll('.project-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200 + 1000);
+            });
+
+            // Message de bienvenue console
+            console.log(`
+            🚀 LinkNest Portfolio chargé avec succès !
+            ✨ Animations 3D actives
+            🎨 ${cards.length} projets disponibles
+            💻 Développé par Badley08
+            `);
+        });
+
+        // ===== OPTIMISATION PERFORMANCE =====
+        let ticking = false;
+        
+        function updateMouseEffect(e) {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    // Logique d'effet souris ici
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+
+        // ===== GESTION DES ERREURS =====
+        window.addEventListener('error', (e) => {
+            console.error('Erreur LinkNest:', e.error);
+        });
+
+        // ===== ACCESSIBILITÉ =====
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-navigation');
+            }
+        });
+
+        document.addEventListener('mousedown', () => {
+            document.body.classList.remove('keyboard-navigation');
+        });
+
+        // ===== EASTER EGG =====
+        let konami = [];
+        const konamiCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // ↑↑↓↓←→←→BA
+        
+        document.addEventListener('keydown', (e) => {
+            konami.push(e.keyCode);
+            if (konami.length > konamiCode.length) {
+                konami.shift();
+            }
+            
+            if (konami.toString() === konamiCode.toString()) {
+                // Effet spécial secret
+                particles.forEach(particle => {
+                    particle.material.color.setHSL(Math.random(), 1, 0.5);
+                });
+                
+                const title = document.querySelector('.title');
+                title.style.animation = 'gradientShift 0.5s ease-in-out 3';
+                
+                console.log('🎉 Code Konami activé ! Effet spécial déclenché !');
+            }
+        });
+    </script>
+</body>
+</html>
